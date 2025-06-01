@@ -17,6 +17,7 @@ class MainActivity : AppCompatActivity() {
                 "https://demo.enhance.diagnal.com/resources/images/link/6a6ebfef-ec86-378d-b838-06ef769882e7/a0827e4f-a6bf-5d7b-aea3-47a9a53569e0/1743082965050/0:0:1434:810/960*540/f2cb23c1-380a-477c-8de6-a81be5d8e49f_details-page.jpg",
                 "https://demo.enhance.diagnal.com/resources/images/link/06a367e7-58b5-337a-84a7-cdf9ee7bca22/a0827e4f-a6bf-5d7b-aea3-47a9a53569e0/1737372137676/0:0:956:540/960*540/9422805d-6eee-4f92-b499-9a7fea8907f6_169-lg-4.png"
             )
+        slidingImageView.setDirection(SlidingImageView.Direction.CENTERED)
         slidingImageView.setImageUrls(urls)
     }
 }

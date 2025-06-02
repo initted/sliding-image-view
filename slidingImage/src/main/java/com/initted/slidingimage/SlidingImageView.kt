@@ -9,6 +9,7 @@ import android.widget.ImageView
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import java.util.LinkedList
 import java.util.Queue
 
@@ -29,6 +30,7 @@ class SlidingImageView @JvmOverloads constructor(
         LEFT_ONLY, RIGHT_ONLY, CENTERED
     }
 
+    private var firstEndAction: Boolean = false
     private val imageView: ImageView = ImageView(context).apply {
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT).also {
             it.marginStart = -200
@@ -120,6 +122,10 @@ class SlidingImageView @JvmOverloads constructor(
             .translationX(translationValue)
             .setDuration(animationDuration)
             .withEndAction {
+                if (!firstEndAction) {
+                    firstEndAction = true
+                    animationDuration = imageSwitchDelay
+                }
                 if (direction == Direction.CENTERED) {
                     translationValue *= -1
                 } else {
@@ -148,6 +154,7 @@ class SlidingImageView @JvmOverloads constructor(
         Glide.with(context)
             .load(url.toUri())
             .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+            .transition(DrawableTransitionOptions.withCrossFade(1500)) // add animation
             .into(imageView)
     }
 

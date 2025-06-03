@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
+import android.view.ViewPropertyAnimator
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.net.toUri
@@ -30,6 +31,8 @@ class SlidingImageView @JvmOverloads constructor(
         LEFT_ONLY, RIGHT_ONLY, CENTERED
     }
 
+    private var animator: ViewPropertyAnimator? = null
+    private var isAnimationRunning: Boolean = false
     private var firstEndAction: Boolean = false
     private val imageView: ImageView = ImageView(context).apply {
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT).also {
@@ -45,8 +48,8 @@ class SlidingImageView @JvmOverloads constructor(
     private val imageQueue: Queue<String> = LinkedList()
     private val handler = Handler(Looper.getMainLooper())
 
-    private var animationDuration = 9000L
-    private var imageSwitchDelay = 11000L
+    private var animationDuration = ANIMATION_DURATION
+    private var imageSwitchDelay = IMAGE_SWITCH_DELAY
 
     init {
         addView(imageView)
@@ -57,11 +60,27 @@ class SlidingImageView @JvmOverloads constructor(
      * @param imageUrls A list of image URLs.
      */
     fun setImageUrls(imageUrls: List<String>) {
+        if (isAnimationRunning) {
+            removeAllAnimations()
+            isAnimationRunning = false
+            imageQueue.clear()
+        }
         imageUrls.forEach {
             imageQueue.add(it)
             preloadImage(it)
         }
         imageQueue.poll()?.let { startSlideshow(it) }
+    }
+
+    /** for resetting the animation and all other values when the images are re-initiated
+     *
+     */
+    private fun removeAllAnimations() {
+        handler.removeCallbacksAndMessages(null)
+        imageView.translationX = 0f
+        animationDuration = ANIMATION_DURATION
+        imageSwitchDelay = IMAGE_SWITCH_DELAY
+        animator?.cancel()
     }
 
     /**
@@ -98,6 +117,7 @@ class SlidingImageView @JvmOverloads constructor(
      * @param url The image URL to display.
      */
     private fun startSlideshow(url: String) {
+        isAnimationRunning = true
         imageQueue.add(url)
         loadImage(url)
         animateImage()
@@ -118,10 +138,10 @@ class SlidingImageView @JvmOverloads constructor(
      * Repeats continuously using a recursive `withEndAction`.
      */
     private fun animateImage() {
-        imageView.animate()
-            .translationX(translationValue)
-            .setDuration(animationDuration)
-            .withEndAction {
+        animator = imageView.animate()
+        animator?.translationX(translationValue)
+            ?.setDuration(animationDuration)
+            ?.withEndAction {
                 if (!firstEndAction) {
                     firstEndAction = true
                     animationDuration = imageSwitchDelay
@@ -133,7 +153,7 @@ class SlidingImageView @JvmOverloads constructor(
                 }
                 animateImage()
             }
-            .start()
+            ?.start()
     }
 
     /**
@@ -153,6 +173,7 @@ class SlidingImageView @JvmOverloads constructor(
     private fun loadImage(url: String) {
         Glide.with(context)
             .load(url.toUri())
+            .skipMemoryCache(true)
             .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
             .transition(DrawableTransitionOptions.withCrossFade(1500)) // add animation
             .into(imageView)
@@ -176,5 +197,11 @@ class SlidingImageView @JvmOverloads constructor(
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         handler.removeCallbacksAndMessages(null)
+    }
+
+
+    companion object {
+        private const val ANIMATION_DURATION = 9000L
+        private const val IMAGE_SWITCH_DELAY = 11000L
     }
 }

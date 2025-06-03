@@ -1,6 +1,7 @@
 package com.initted.slidingImageDemo
 
 import android.os.Bundle
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.initted.slidingimage.SlidingImageView
 
@@ -10,6 +11,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val slidingImageView: SlidingImageView = findViewById(R.id.slidingImageView)
+        val button: Button = findViewById(R.id.button)
         val urls =
             listOf(
                 "https://demo.enhance.diagnal.com/resources/images/link/b4f58914-c832-3664-95ca-2846e862cb7b/a0827e4f-a6bf-5d7b-aea3-47a9a53569e0/1737375129088/0:0:956:540/960*540/0fdfa906-23a3-40ac-8387-312da4a89742_169-lg-13.png",
@@ -19,5 +21,8 @@ class MainActivity : AppCompatActivity() {
             )
         slidingImageView.setDirection(SlidingImageView.Direction.CENTERED)
         slidingImageView.setImageUrls(urls)
+        button.setOnClickListener {
+            slidingImageView.setImageUrls(urls)
+        }
     }
 }

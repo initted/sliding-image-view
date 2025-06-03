@@ -63,6 +63,7 @@ class SlidingImageView @JvmOverloads constructor(
         if (isAnimationRunning) {
             removeAllAnimations()
             isAnimationRunning = false
+            firstEndAction = false
             imageQueue.clear()
         }
         imageUrls.forEach {
